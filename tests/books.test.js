@@ -188,7 +188,6 @@ describe('Books feature: ', () => {
   describe('GET /books/{id}', () => {
     it('should success get detail book', async () => {
       addBook();
-      console.log(books);
       const response = await request.inject({
         method: 'GET',
         url: `/books/${books[0].id}`,
@@ -303,6 +302,37 @@ describe('Books feature: ', () => {
       expect(response.result.message).toBeDefined();
       expect(response.result.status).toBe('fail');
       expect(response.result.message).toBe('Gagal memperbarui buku. readPage tidak boleh lebih besar dari pageCount');
+    });
+  });
+
+  describe('DELETE /books/{id}', () => {
+    it('should success remove book', async () => {
+      addBook();
+      const response = await request.inject({
+        method: 'DELETE',
+        url: `/books/${books[0].id}`,
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.headers['content-type']).toContain('application/json');
+      expect(response.result.status).toBeDefined();
+      expect(response.result.message).toBeDefined();
+      expect(response.result.status).toBe('success');
+      expect(response.result.message).toBe('Buku berhasil dihapus');
+    });
+
+    it('should return 404 when book not exists', async () => {
+      const response = await request.inject({
+        method: 'DELETE',
+        url: '/books/invalidid',
+      });
+
+      expect(response.statusCode).toBe(404);
+      expect(response.headers['content-type']).toContain('application/json');
+      expect(response.result.status).toBeDefined();
+      expect(response.result.message).toBeDefined();
+      expect(response.result.status).toBe('fail');
+      expect(response.result.message).toBe('Buku gagal dihapus. Id tidak ditemukan');
     });
   });
 });

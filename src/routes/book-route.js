@@ -29,6 +29,11 @@ const bookRoutes = [
       validate: updateBookValidation,
     },
   },
+  {
+    method: 'DELETE',
+    path: '/books/{id}',
+    handler: bookHandler.destroy,
+  },
 ];
 
 export default bookRoutes;

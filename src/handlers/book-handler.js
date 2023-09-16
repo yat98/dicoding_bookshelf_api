@@ -88,9 +88,28 @@ const update = (req, h) => {
   }).code(404);
 };
 
+const destroy = (req, h) => {
+  const {id} = req.params;
+  const bookIndex = books.findIndex((book) => book.id === id);
+
+  if (bookIndex !== -1) {
+    books.splice(bookIndex, 1);
+    return h.response({
+      status: 'success',
+      message: 'Buku berhasil dihapus',
+    }).code(200);
+  }
+
+  return h.response({
+    status: 'fail',
+    message: 'Buku gagal dihapus. Id tidak ditemukan',
+  }).code(404);
+};
+
 export default {
   index,
   show,
   store,
   update,
+  destroy,
 };
