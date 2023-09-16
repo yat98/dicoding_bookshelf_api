@@ -1,5 +1,12 @@
 /* eslint-disable max-len */
 import server from '../src/app/server.js';
+import books from '../src/models/book.js';
+
+const removeAllBook = () => {
+  while (books.length > 0) {
+    books.pop();
+  }
+};
 
 describe('Books feature: ', () => {
   let request;
@@ -85,6 +92,43 @@ describe('Books feature: ', () => {
       expect(response.result.message).toBeDefined();
       expect(response.result.status).toBe('fail');
       expect(response.result.message).toBe('Gagal menambahkan buku. readPage tidak boleh lebih besar dari pageCount');
+    });
+  });
+
+  describe('GET /books', () => {
+    it('should success get list books', async () => {
+      const response = await request.inject({
+        method: 'GET',
+        url: '/books',
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.headers['content-type']).toContain('application/json');
+      expect(response.result.status).toBeDefined();
+      expect(response.result.data).toBeDefined();
+      expect(response.result.data.books).toBeDefined();
+      expect(response.result.status).toBe('success');
+      expect(response.result.data.books[0]).toHaveProperty('id');
+      expect(response.result.data.books[0]).toHaveProperty('name');
+      expect(response.result.data.books[0]).toHaveProperty('publisher');
+      expect(response.result.data.books[0].name).toBe(payload.name);
+      expect(response.result.data.books[0].publisher).toBe(payload.publisher);
+    });
+
+    it('should success get empty list books', async () => {
+      removeAllBook();
+      const response = await request.inject({
+        method: 'GET',
+        url: '/books',
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.headers['content-type']).toContain('application/json');
+      expect(response.result.status).toBeDefined();
+      expect(response.result.data).toBeDefined();
+      expect(response.result.data.books).toBeDefined();
+      expect(response.result.status).toBe('success');
+      expect(response.result.data.books).toEqual([]);
     });
   });
 });
