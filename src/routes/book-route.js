@@ -10,6 +10,11 @@ const bookRoutes = [
       validate: storeBookValidation,
     },
   },
+  {
+    method: 'GET',
+    path: '/books',
+    handler: bookHandler.index,
+  },
 ];
 
 export default bookRoutes;
