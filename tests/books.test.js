@@ -10,7 +10,7 @@ const payload = {
   summary: 'Lorem ipsum dolor sit amet',
   publisher: 'Dicoding Indonesia',
   pageCount: 100,
-  readPage: 25,
+  readPage: 0,
   reading: false,
 };
 
@@ -21,7 +21,7 @@ const payloadUpdate = {
   summary: 'Ipsum dolor sit lorem',
   publisher: 'Dicoding ID',
   pageCount: 120,
-  readPage: 35,
+  readPage: 0,
   reading: true,
 };
 
@@ -34,6 +34,37 @@ const addBook = () => {
     ...payload,
     id,
     finished,
+    insertedAt,
+    updatedAt,
+  });
+};
+
+const addBookReading = () => {
+  const id = nanoid(16);
+  const insertedAt = new Date().toISOString();
+  const updatedAt = insertedAt;
+  books.push({
+    ...payload,
+    id,
+    pageCount: 100,
+    readPage: 0,
+    finished: true,
+    reading: true,
+    insertedAt,
+    updatedAt,
+  });
+};
+
+const addBookFinished = () => {
+  const id = nanoid(16);
+  const insertedAt = new Date().toISOString();
+  const updatedAt = insertedAt;
+  books.push({
+    ...payload,
+    id,
+    pageCount: 100,
+    readPage: 0,
+    finished: true,
     insertedAt,
     updatedAt,
   });
@@ -183,10 +214,93 @@ describe('Books feature: ', () => {
       expect(response.result.status).toBe('success');
       expect(response.result.data.books).toEqual([]);
     });
+
+    it('should success get list books by name', async () => {
+      addBook();
+      const response = await request.inject({
+        method: 'GET',
+        url: '/books?name=uk',
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.headers['content-type']).toContain('application/json');
+      expect(response.result.status).toBeDefined();
+      expect(response.result.data).toBeDefined();
+      expect(response.result.data.books).toBeDefined();
+      expect(response.result.status).toBe('success');
+      expect(response.result.data.books).toEqual([
+        {
+          id: books[0].id,
+          name: payload.name,
+          publisher: payload.publisher,
+        },
+      ]);
+    });
+
+    it('should success get filter reading list', async () => {
+      removeAllBook();
+      addBookReading();
+      let response = await request.inject({
+        method: 'GET',
+        url: '/books?reading=1',
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.headers['content-type']).toContain('application/json');
+      expect(response.result.status).toBeDefined();
+      expect(response.result.data).toBeDefined();
+      expect(response.result.data.books).toBeDefined();
+      expect(response.result.status).toBe('success');
+      expect(response.result.data.books.length).toBe(1);
+
+      response = await request.inject({
+        method: 'GET',
+        url: '/books?reading=0',
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.headers['content-type']).toContain('application/json');
+      expect(response.result.status).toBeDefined();
+      expect(response.result.data).toBeDefined();
+      expect(response.result.data.books).toBeDefined();
+      expect(response.result.status).toBe('success');
+      expect(response.result.data.books.length).toBe(0);
+    });
+
+    it('should success get filter finished list', async () => {
+      removeAllBook();
+      addBookFinished();
+      let response = await request.inject({
+        method: 'GET',
+        url: '/books?finished=1',
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.headers['content-type']).toContain('application/json');
+      expect(response.result.status).toBeDefined();
+      expect(response.result.data).toBeDefined();
+      expect(response.result.data.books).toBeDefined();
+      expect(response.result.status).toBe('success');
+      expect(response.result.data.books.length).toBe(1);
+
+      response = await request.inject({
+        method: 'GET',
+        url: '/books?finished=0',
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.headers['content-type']).toContain('application/json');
+      expect(response.result.status).toBeDefined();
+      expect(response.result.data).toBeDefined();
+      expect(response.result.data.books).toBeDefined();
+      expect(response.result.status).toBe('success');
+      expect(response.result.data.books.length).toBe(0);
+    });
   });
 
   describe('GET /books/{id}', () => {
     it('should success get detail book', async () => {
+      removeAllBook();
       addBook();
       const response = await request.inject({
         method: 'GET',

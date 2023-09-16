@@ -1,16 +1,30 @@
+/* eslint-disable max-len */
 import {nanoid} from 'nanoid';
 import books from '../models/book.js';
 
 const index = (req, h) => {
-  const newBooks = books.map((book) => {
-    const {id, name, publisher} = book;
-    return {id, name, publisher};
-  });
+  const {name, reading, finished} = req.query;
+  let newBooks = books;
+
+  if (name !== undefined) {
+    newBooks = newBooks.filter((book) => book.name.toLowerCase().includes(name.toLowerCase()));
+  }
+
+  if (reading !== undefined) {
+    newBooks = newBooks.filter((book) => book.reading === (reading === '1'));
+  }
+
+  if (finished !== undefined) {
+    newBooks = newBooks.filter((book) => book.finished === (finished === '1'));
+  }
 
   return h.response({
     status: 'success',
     data: {
-      books: newBooks,
+      books: newBooks.map((book) => {
+        const {id, name, publisher} = book;
+        return {id, name, publisher};
+      }),
     },
   }).code(200);
 };
