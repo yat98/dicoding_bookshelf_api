@@ -1,7 +1,8 @@
+/* c8 ignore next */
+import 'dotenv/config';
 import Hapi from '@hapi/hapi';
-import dotenv from 'dotenv';
+import bookRoutes from '../routes/book-route.js';
 
-dotenv.config();
 const host = process.env.HOST;
 const port = process.env.PORT;
 
@@ -17,6 +18,11 @@ const server = Hapi.server({
   },
 });
 
+server.route([
+  ...bookRoutes,
+]);
+
+/* c8 ignore next 9 */
 const init = async () => {
   await server.initialize();
   return server;
