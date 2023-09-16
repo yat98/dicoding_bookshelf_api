@@ -59,8 +59,38 @@ const store = (req, h) => {
   }).code(201);
 };
 
+const update = (req, h) => {
+  const {id} = req.params;
+  const {
+    name, year, author, summary,
+    publisher, pageCount, readPage, reading,
+  } = req.payload;
+  const updatedAt = new Date().toISOString();
+  const finished = pageCount === readPage;
+  const bookIndex = books.findIndex((book) => book.id === id);
+
+  if (bookIndex !== -1) {
+    books[bookIndex] = {
+      ...books[bookIndex],
+      name, year, author, summary, publisher,
+      pageCount, readPage, finished, reading, updatedAt,
+    };
+
+    return h.response({
+      status: 'success',
+      message: 'Buku berhasil diperbarui',
+    }).code(200);
+  }
+
+  return h.response({
+    status: 'fail',
+    message: 'Gagal memperbarui buku. Id tidak ditemukan',
+  }).code(404);
+};
+
 export default {
   index,
   show,
   store,
+  update,
 };
