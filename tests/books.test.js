@@ -14,6 +14,17 @@ const payload = {
   reading: false,
 };
 
+const payloadUpdate = {
+  name: 'Buku B',
+  year: 2011,
+  author: 'James Doe',
+  summary: 'Ipsum dolor sit lorem',
+  publisher: 'Dicoding ID',
+  pageCount: 120,
+  readPage: 35,
+  reading: true,
+};
+
 const addBook = () => {
   const id = nanoid(16);
   const insertedAt = new Date().toISOString();
@@ -212,6 +223,86 @@ describe('Books feature: ', () => {
       expect(response.result.message).toBeDefined();
       expect(response.result.status).toBe('fail');
       expect(response.result.message).toBe('Buku tidak ditemukan');
+    });
+  });
+
+  describe('PUT /books', () => {
+    it('should success update book', async () => {
+      addBook();
+      const response = await request.inject({
+        method: 'PUT',
+        url: `/books/${books[0].id}`,
+        payload: payloadUpdate,
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.headers['content-type']).toContain('application/json');
+      expect(response.result.status).toBeDefined();
+      expect(response.result.message).toBeDefined();
+      expect(response.result.status).toBe('success');
+      expect(response.result.message).toBe('Buku berhasil diperbarui');
+    });
+
+    it('should return 404 when book is not exists', async () => {
+      const response = await request.inject({
+        method: 'PUT',
+        url: '/books/invalidid',
+        payload: payloadUpdate,
+      });
+
+      expect(response.statusCode).toBe(404);
+      expect(response.headers['content-type']).toContain('application/json');
+      expect(response.result.status).toBeDefined();
+      expect(response.result.message).toBeDefined();
+      expect(response.result.status).toBe('fail');
+      expect(response.result.message).toBe('Gagal memperbarui buku. Id tidak ditemukan');
+    });
+
+    it('should reject update book when name is empty', async () => {
+      const response = await request.inject({
+        method: 'PUT',
+        url: `/books/${books[0].id}`,
+        payload: {
+          year: 2010,
+          author: 'John Doe',
+          summary: 'Lorem ipsum dolor sit amet',
+          publisher: 'Dicoding Indonesia',
+          pageCount: 100,
+          readPage: 25,
+          reading: false,
+        },
+      });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.headers['content-type']).toContain('application/json');
+      expect(response.result.status).toBeDefined();
+      expect(response.result.message).toBeDefined();
+      expect(response.result.status).toBe('fail');
+      expect(response.result.message).toBe('Gagal memperbarui buku. Mohon isi nama buku');
+    });
+
+    it('should reject update book when readPage greater than pageCount', async () => {
+      const response = await request.inject({
+        method: 'PUT',
+        url: `/books/${books[0].id}`,
+        payload: {
+          name: 'Book A',
+          year: 2010,
+          author: 'John Doe',
+          summary: 'Lorem ipsum dolor sit amet',
+          publisher: 'Dicoding Indonesia',
+          pageCount: 100,
+          readPage: 101,
+          reading: false,
+        },
+      });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.headers['content-type']).toContain('application/json');
+      expect(response.result.status).toBeDefined();
+      expect(response.result.message).toBeDefined();
+      expect(response.result.status).toBe('fail');
+      expect(response.result.message).toBe('Gagal memperbarui buku. readPage tidak boleh lebih besar dari pageCount');
     });
   });
 });

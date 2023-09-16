@@ -24,6 +24,28 @@ const storeBookValidation = {
   }),
 };
 
+const updateBookValidation = {
+  options: schemaOption,
+  failAction: failHandler,
+  payload: Joi.object({
+    name: Joi.string().required().messages({
+      'string.base': 'Gagal memperbarui buku. nama harus berupa text',
+      'any.required': 'Gagal memperbarui buku. Mohon isi nama buku',
+    }),
+    pageCount: Joi.number().positive().messages({
+      'number.base': 'Gagal memperbarui buku. pageCount harus berupa angka',
+      'number.positive': 'Gagal memperbarui buku. pageCount harus angka positif',
+    }),
+    readPage: Joi.number().positive().when('pageCount', {
+      is: Joi.number().required(),
+      then: Joi.number().max(Joi.ref('pageCount')).messages({
+        'number.max': 'Gagal memperbarui buku. readPage tidak boleh lebih besar dari pageCount',
+      }),
+    }),
+  }),
+};
+
 export {
   storeBookValidation,
+  updateBookValidation,
 };
