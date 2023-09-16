@@ -5,8 +5,13 @@
   "type": "module",
   "main": "src/index.js",
   "scripts": {
+    "start": "node src/index.js",
+    "start-dev": "nodemon src/index.js",
+    "start-prod": "NODE_ENV=production node src/index.js",
     "test": "jest -i",
-    "test:coverage": "jest -i --coverage"
+    "test:coverage": "jest -i --coverage",
+    "lint": "eslint ./",
+    "lint:fix": "eslint ./ --fix"
   },
   "repository": {
     "type": "git",
