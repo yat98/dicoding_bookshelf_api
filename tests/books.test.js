@@ -47,6 +47,32 @@ describe('Books feature: ', () => {
       expect(response.result.message).toBe('Buku berhasil ditambahkan');
     });
 
+    it('should success add book when finished reading', async () => {
+      const response = await request.inject({
+        method: 'POST',
+        url: '/books',
+        payload: {
+          name: 'Book A',
+          year: 2010,
+          author: 'John Doe',
+          summary: 'Lorem ipsum dolor sit amet',
+          publisher: 'Dicoding Indonesia',
+          pageCount: 100,
+          readPage: 100,
+          reading: false,
+        },
+      });
+
+      expect(response.statusCode).toBe(201);
+      expect(response.headers['content-type']).toContain('application/json');
+      expect(response.result.status).toBeDefined();
+      expect(response.result.message).toBeDefined();
+      expect(response.result.data).toBeDefined();
+      expect(response.result.data.bookId).toBeDefined();
+      expect(response.result.status).toBe('success');
+      expect(response.result.message).toBe('Buku berhasil ditambahkan');
+    });
+
     it('should reject add book when name is empty', async () => {
       const response = await request.inject({
         method: 'POST',
