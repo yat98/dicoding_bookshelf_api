@@ -1,6 +1,32 @@
 /* eslint-disable max-len */
+import {nanoid} from 'nanoid';
 import server from '../src/app/server.js';
 import books from '../src/models/book.js';
+
+const payload = {
+  name: 'Buku A',
+  year: 2010,
+  author: 'John Doe',
+  summary: 'Lorem ipsum dolor sit amet',
+  publisher: 'Dicoding Indonesia',
+  pageCount: 100,
+  readPage: 25,
+  reading: false,
+};
+
+const addBook = () => {
+  const id = nanoid(16);
+  const insertedAt = new Date().toISOString();
+  const updatedAt = insertedAt;
+  const finished = payload.pageCount === payload.readPage;
+  books.push({
+    ...payload,
+    id,
+    finished,
+    insertedAt,
+    updatedAt,
+  });
+};
 
 const removeAllBook = () => {
   while (books.length > 0) {
@@ -10,16 +36,6 @@ const removeAllBook = () => {
 
 describe('Books feature: ', () => {
   let request;
-  const payload = {
-    name: 'Buku A',
-    year: 2010,
-    author: 'John Doe',
-    summary: 'Lorem ipsum dolor sit amet',
-    publisher: 'Dicoding Indonesia',
-    pageCount: 100,
-    readPage: 25,
-    reading: false,
-  };
 
   beforeAll(async () => {
     request = await server.init();
@@ -155,6 +171,47 @@ describe('Books feature: ', () => {
       expect(response.result.data.books).toBeDefined();
       expect(response.result.status).toBe('success');
       expect(response.result.data.books).toEqual([]);
+    });
+  });
+
+  describe('GET /books/{id}', () => {
+    it('should success get detail book', async () => {
+      addBook();
+      console.log(books);
+      const response = await request.inject({
+        method: 'GET',
+        url: `/books/${books[0].id}`,
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.headers['content-type']).toContain('application/json');
+      expect(response.result.status).toBeDefined();
+      expect(response.result.data).toBeDefined();
+      expect(response.result.data.book).toBeDefined();
+      expect(response.result.status).toBe('success');
+      expect(response.result.data.book.name).toBe(payload.name);
+      expect(response.result.data.book.year).toBe(payload.year);
+      expect(response.result.data.book.author).toBe(payload.author);
+      expect(response.result.data.book.summary).toBe(payload.summary);
+      expect(response.result.data.book.publisher).toBe(payload.publisher);
+      expect(response.result.data.book.pageCount).toBe(payload.pageCount);
+      expect(response.result.data.book.readPage).toBe(payload.readPage);
+      expect(response.result.data.book.reading).toBe(payload.reading);
+    });
+
+    it('should return 404 when book not exists', async () => {
+      removeAllBook();
+      const response = await request.inject({
+        method: 'GET',
+        url: '/books/invalidid',
+      });
+
+      expect(response.statusCode).toBe(404);
+      expect(response.headers['content-type']).toContain('application/json');
+      expect(response.result.status).toBeDefined();
+      expect(response.result.message).toBeDefined();
+      expect(response.result.status).toBe('fail');
+      expect(response.result.message).toBe('Buku tidak ditemukan');
     });
   });
 });

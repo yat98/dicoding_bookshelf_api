@@ -12,7 +12,26 @@ const index = (req, h) => {
     data: {
       books: newBooks,
     },
-  });
+  }).code(200);
+};
+
+const show = (req, h) => {
+  const {id} = req.params;
+  const book = books.filter((book) => book.id === id)[0];
+
+  if (book !== undefined) {
+    return h.response({
+      status: 'success',
+      data: {
+        book,
+      },
+    }).code(200);
+  }
+
+  return h.response({
+    status: 'fail',
+    message: 'Buku tidak ditemukan',
+  }).code(404);
 };
 
 const store = (req, h) => {
@@ -42,5 +61,6 @@ const store = (req, h) => {
 
 export default {
   index,
+  show,
   store,
 };
