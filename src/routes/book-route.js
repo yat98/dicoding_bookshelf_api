@@ -15,6 +15,11 @@ const bookRoutes = [
     path: '/books',
     handler: bookHandler.index,
   },
+  {
+    method: 'GET',
+    path: '/books/{id}',
+    handler: bookHandler.show,
+  },
 ];
 
 export default bookRoutes;
