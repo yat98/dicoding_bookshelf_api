@@ -17,8 +17,8 @@ const storeBookValidation = {
     }),
     readPage: Joi.number().positive().when('pageCount', {
       is: Joi.number().required(),
-      then: Joi.number().less(Joi.ref('pageCount')).messages({
-        'number.less': 'Gagal menambahkan buku. readPage tidak boleh lebih besar dari pageCount',
+      then: Joi.number().max(Joi.ref('pageCount')).messages({
+        'number.max': 'Gagal menambahkan buku. readPage tidak boleh lebih besar dari pageCount',
       }),
     }),
   }),
